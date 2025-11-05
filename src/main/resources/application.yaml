@@ -1,0 +1,15 @@
+server:
+  port: ${SERVER_PORT:5082}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
+
+spring:
+  application:
+    name: iti-service-files
+  config.import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
+
+
+app.root.folder: ${APP_ROOT_FOLDER:/Volumes/Extreme Pro/SHARED/UMDRIVE}
