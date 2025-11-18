@@ -11,5 +11,6 @@ spring:
     name: iti-service-files
   config.import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
 
-
-app.root.folder: ${APP_ROOT_FOLDER:/Volumes/Extreme Pro/SHARED/UMDRIVE}
+app:
+  root_folder: '/Volumes/Extreme Pro/SHARED/UMDRIVE'
+  allowed_MimeTypes: '.txt,.pdf'

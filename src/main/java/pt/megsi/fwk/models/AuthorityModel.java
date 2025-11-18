@@ -1,4 +1,4 @@
-package pt.iti.umdrive.model;
+package pt.megsi.fwk.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleModel {
-    private Long id;
+public class AuthorityModel {
     private String name;
 }

@@ -1,4 +1,4 @@
-package pt.iti.umdrive.model;
+package pt.megsi.fwk.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,5 +20,5 @@ public class UserModel {
     private String username;
     private String password;
     @Builder.Default
-    private List<RoleModel> roles = new ArrayList<>();
+    private List<AuthorityModel> authorities = new ArrayList<>();
 }

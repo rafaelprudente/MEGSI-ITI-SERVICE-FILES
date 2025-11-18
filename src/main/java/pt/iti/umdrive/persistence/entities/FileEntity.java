@@ -9,15 +9,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pt.megsi.fwk.entities.UserEntity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "files")
@@ -26,12 +30,21 @@ public class FileEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name")
-    private String name;
-    @Column(name = "folder")
-    private String folder;
+    @ManyToOne
+    @JoinColumn(name = "username")
+    private UserEntity user;
+
+    @Column(name = "original_name")
+    private String originalName;
+    @Column(name = "stored_name")
+    private String storedName;
+    @Column(name = "mime_type")
+    private String mimeType;
+    @Column(name = "size")
+    private long size;
     @Column(name = "version")
-    private Integer version;
-    @Column(name = "physicalName")
-    private String physicalName;
+    private long version;
+
+    @Column(name = "create_at")
+    private Instant createAt;
 }

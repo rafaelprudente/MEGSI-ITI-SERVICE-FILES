@@ -16,4 +16,5 @@ import java.util.UUID;
 public class FileModel {
     private UUID id;
     private String name;
+    private long version;
 }
