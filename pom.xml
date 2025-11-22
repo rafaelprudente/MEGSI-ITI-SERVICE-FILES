@@ -46,6 +46,12 @@
         </dependency>
 
         <dependency>
+            <groupId>pt.iti</groupId>
+            <artifactId>framework</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${org.mapstruct.version}</version>
@@ -95,6 +101,25 @@
             <version>2.20.0</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>onedev</id>
+            <url>http://192.168.56.213:6610/UMINHO/~maven</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>onedev</id>
+            <url>http://192.168.56.213:6610/UMINHO/~maven</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>onedev</id>
+            <url>http://192.168.56.213:6610/UMINHO/~maven</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <plugins>

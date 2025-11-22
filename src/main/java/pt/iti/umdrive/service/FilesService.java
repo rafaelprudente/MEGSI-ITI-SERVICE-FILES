@@ -12,9 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import pt.iti.umdrive.model.FileModel;
 import pt.iti.umdrive.persistence.entities.FileEntity;
 import pt.iti.umdrive.persistence.repositories.FileRepository;
-import pt.megsi.fwk.entities.UserEntity;
-import pt.megsi.fwk.exceptions.BusinessException;
-import pt.megsi.fwk.repositories.UserRepository;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,6 +26,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.javatuples.Pair;
+import pt.megsi.fwk.entities.UserEntity;
+import pt.megsi.fwk.exceptions.BusinessException;
+import pt.megsi.fwk.repositories.UserRepository;
 
 @Slf4j
 @Service
