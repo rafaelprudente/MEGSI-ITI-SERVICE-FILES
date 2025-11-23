@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    tools { maven 'MVN' }
+    tools { maven 'mvn' }
 
     environment {
         IMAGE_NAME = "iti-service-files"
