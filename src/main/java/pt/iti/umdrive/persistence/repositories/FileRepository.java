@@ -2,7 +2,7 @@ package pt.iti.umdrive.persistence.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pt.iti.umdrive.persistence.entities.FileEntity;
+import pt.iti.umdrive.infrastructure.adapter.out.persistence.entity.FileEntity;
 
 import java.util.List;
 import java.util.UUID;

@@ -3,14 +3,16 @@ package pt.iti.umdrive.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pt.iti.umdrive.domain.exception.BusinessException;
+import pt.iti.umdrive.infrastructure.adapter.out.persistence.entity.FileEntity;
 import pt.iti.umdrive.model.FileModel;
-import pt.iti.umdrive.persistence.entities.FileEntity;
 import pt.iti.umdrive.persistence.repositories.FileRepository;
 
 import java.io.FileNotFoundException;
@@ -25,17 +27,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.javatuples.Pair;
-import pt.megsi.fwk.entities.UserEntity;
-import pt.megsi.fwk.exceptions.BusinessException;
-import pt.megsi.fwk.repositories.UserRepository;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilesService {
     private final FileRepository fileRepository;
-    private final UserRepository userRepository;
 
     @Value("${app.root_folder}")
     Path appRootFolder;
@@ -47,7 +44,7 @@ public class FilesService {
                 .stream()
                 .map(f -> FileModel.builder()
                         .id(f.getId())
-                        .name(f.getOriginalName())
+                        .originalName(f.getOriginalName())
                         .version(f.getVersion())
                         .build())
                 .toList();
@@ -60,36 +57,39 @@ public class FilesService {
 
         log.debug("Start - FileModel saveFile(MultipartFile file)");
 
-        FileModel result;
+        FileModel result = null;
 
         try {
-            UserEntity ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            //Optional<UserEntity> ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            String destinationFileName = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 
-            Path uploadPath = Paths.get(appRootFolder.toString(), ue.getDetails().getId().toString(), path.toString());
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+           //if (ue.isPresent()) {
+                String destinationFileName = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 
-            Path filePath = uploadPath.resolve(destinationFileName);
+                Path uploadPath = Paths.get("/");//Paths.get(appRootFolder.toString(), ue.get().getDetails().getId().toString(), path.toString());
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
 
-            Files.copy(file.getInputStream(), filePath);
+                Path filePath = uploadPath.resolve(destinationFileName);
 
-            String originalName = Paths.get(path.toString(), file.getOriginalFilename()).toString();
-            long versionNumber = fileRepository.findByUser_UsernameAndOriginalName(SecurityContextHolder.getContext().getAuthentication().getName(), originalName).size();
+                Files.copy(file.getInputStream(), filePath);
 
-            FileEntity fe = fileRepository.save(FileEntity.builder()
-                    .user(ue)
-                    .originalName(originalName)
-                    .storedName(filePath.toString())
-                    .mimeType(file.getContentType())
-                    .size(filePath.toFile().length())
-                    .version(versionNumber)
-                    .createAt(LocalDateTime.now().toInstant(ZoneOffset.UTC))
-                    .build());
+                String originalName = Paths.get(path.toString(), file.getOriginalFilename()).toString();
+                long versionNumber = fileRepository.findByUser_UsernameAndOriginalName(SecurityContextHolder.getContext().getAuthentication().getName(), originalName).size();
 
-            result = FileModel.builder().id(fe.getId()).name(fe.getOriginalName()).version(fe.getVersion()).build();
+                FileEntity fe = fileRepository.save(FileEntity.builder()
+                        .userId(UUID.randomUUID())
+                        .originalName(originalName)
+                        .storedName(filePath.toString())
+                        .mimeType(file.getContentType())
+                        .size(filePath.toFile().length())
+                        .version(versionNumber)
+                        .createAt(LocalDateTime.now().toInstant(ZoneOffset.UTC))
+                        .build());
+
+                result = FileModel.builder().id(fe.getId()).originalName(fe.getOriginalName()).version(fe.getVersion()).build();
+            //}
         } catch (Exception e) {
             throw new BusinessException(e.toString());
         } finally {
@@ -118,15 +118,17 @@ public class FilesService {
             deleteById(fe.getId());
         }
 
-        UserEntity ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-        Path uploadPath = Paths.get(appRootFolder.toString(), ue.getDetails().getId().toString(), path.toString());
-        try (Stream<Path> paths = Files.list(uploadPath)) {
-            if (paths.findAny().isEmpty()) {
-                Files.deleteIfExists(uploadPath);
+        //Optional<UserEntity> ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        //if (ue.isPresent()) {
+            Path uploadPath = Paths.get("/");//Paths.get(appRootFolder.toString(), ue.get().getDetails().getId().toString(), path.toString());
+            try (Stream<Path> paths = Files.list(uploadPath)) {
+                if (paths.findAny().isEmpty()) {
+                    Files.deleteIfExists(uploadPath);
+                }
+            } catch (IOException e) {
+                throw new BusinessException(e.toString());
             }
-        } catch (IOException e) {
-            throw new BusinessException(e.toString());
-        }
+        //}
     }
 
     public void deleteById(UUID id) throws BusinessException {

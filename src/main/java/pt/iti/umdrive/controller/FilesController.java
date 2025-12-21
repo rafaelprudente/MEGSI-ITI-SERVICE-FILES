@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import pt.iti.umdrive.domain.exception.BusinessException;
+import pt.iti.umdrive.infrastructure.adapter.out.persistence.entity.FileEntity;
 import pt.iti.umdrive.model.FileModel;
-import pt.iti.umdrive.persistence.entities.FileEntity;
 import pt.iti.umdrive.service.FilesService;
-import pt.megsi.fwk.exceptions.BusinessException;
 
 import java.io.File;
 import java.io.FileNotFoundException;

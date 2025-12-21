@@ -1,0 +1,35 @@
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: iti-service-files
+  config.import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
+
+  datasource:
+    url: jdbc:mariadb://${MARIADB_SERVER_URI}:30306/ITI
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    defer-datasource-initialization: false
+    open-in-view: false
+
+hibernate:
+  dialect: org.hibernate.dialect.MariaDBDialect
+
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL:INFO}
+    pt.uminho: ${APP_LOG_LEVEL:DEBUG}
+
+app:
+  jwt_expiration: 3600
+  jwt_private_key: classpath:private.pem
+  jwt_public_key: classpath:public.pem
+  kafka_registration_topic: REGISTRATION.MESSAGE.1
+  kafka_registration_groupId: REGISTRATION.MESSAGE.GROUP.ID
+  api_host: localhost:8080
