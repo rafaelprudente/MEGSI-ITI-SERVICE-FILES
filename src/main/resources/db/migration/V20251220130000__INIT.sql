@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `tb_files`
 (
     `id`                      uuid         NOT NULL,
-    `userId`                  uuid         NOT NULL,
+    `user_id`                  uuid         NOT NULL,
     `original_name`           varchar(255) DEFAULT NULL,
     `stored_name`             varchar(255) DEFAULT NULL,
     `mime_type`               varchar(255) DEFAULT NULL,

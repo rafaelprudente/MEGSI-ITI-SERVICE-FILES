@@ -26,7 +26,7 @@ public class FileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private UUID userId;
     @Column(name = "original_name")
     private String originalName;

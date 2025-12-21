@@ -33,3 +33,5 @@ app:
   kafka_registration_topic: REGISTRATION.MESSAGE.1
   kafka_registration_groupId: REGISTRATION.MESSAGE.GROUP.ID
   api_host: localhost:8080
+  allowed_MimeTypes:
+  root_folder: /Volumes/Extreme Pro/SHARED/SAMPLE_DATA

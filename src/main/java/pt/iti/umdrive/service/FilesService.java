@@ -7,7 +7,9 @@ import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pt.iti.umdrive.domain.exception.BusinessException;
@@ -23,7 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -40,7 +44,7 @@ public class FilesService {
     String[] appAllowedMimeTypes;
 
     public List<FileModel> findAll() {
-        return fileRepository.findByUser_UsernameIgnoreCaseOrderByVersionAsc(SecurityContextHolder.getContext().getAuthentication().getName())
+        return fileRepository.findByUserId(UUID.fromString(Objects.requireNonNull(getClaim("id"))))
                 .stream()
                 .map(f -> FileModel.builder()
                         .id(f.getId())
@@ -60,36 +64,31 @@ public class FilesService {
         FileModel result = null;
 
         try {
-            //Optional<UserEntity> ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            String destinationFileName = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 
+            Path uploadPath = Paths.get(appRootFolder.toString(), getClaim("id"), path.toString());
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
 
-           //if (ue.isPresent()) {
-                String destinationFileName = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+            Path filePath = uploadPath.resolve(destinationFileName);
 
-                Path uploadPath = Paths.get("/");//Paths.get(appRootFolder.toString(), ue.get().getDetails().getId().toString(), path.toString());
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
+            Files.copy(file.getInputStream(), filePath);
 
-                Path filePath = uploadPath.resolve(destinationFileName);
+            String originalName = Paths.get(path.toString(), file.getOriginalFilename()).toString();
+            long versionNumber = fileRepository.findByUserId(UUID.fromString(Objects.requireNonNull(getClaim("id")))).size();
 
-                Files.copy(file.getInputStream(), filePath);
+            FileEntity fe = fileRepository.save(FileEntity.builder()
+                    .userId(UUID.fromString(Objects.requireNonNull(getClaim("id"))))
+                    .originalName(originalName)
+                    .storedName(filePath.toString())
+                    .mimeType(file.getContentType())
+                    .size(filePath.toFile().length())
+                    .version(versionNumber)
+                    .createAt(LocalDateTime.now().toInstant(ZoneOffset.UTC))
+                    .build());
 
-                String originalName = Paths.get(path.toString(), file.getOriginalFilename()).toString();
-                long versionNumber = fileRepository.findByUser_UsernameAndOriginalName(SecurityContextHolder.getContext().getAuthentication().getName(), originalName).size();
-
-                FileEntity fe = fileRepository.save(FileEntity.builder()
-                        .userId(UUID.randomUUID())
-                        .originalName(originalName)
-                        .storedName(filePath.toString())
-                        .mimeType(file.getContentType())
-                        .size(filePath.toFile().length())
-                        .version(versionNumber)
-                        .createAt(LocalDateTime.now().toInstant(ZoneOffset.UTC))
-                        .build());
-
-                result = FileModel.builder().id(fe.getId()).originalName(fe.getOriginalName()).version(fe.getVersion()).build();
-            //}
+            result = FileModel.builder().id(fe.getId()).originalName(fe.getOriginalName()).version(fe.getVersion()).build();
         } catch (Exception e) {
             throw new BusinessException(e.toString());
         } finally {
@@ -113,21 +112,21 @@ public class FilesService {
     }
 
     public void delete(Path path, String file) throws BusinessException {
-        List<FileEntity> files = fileRepository.findByUser_UsernameAndOriginalName(SecurityContextHolder.getContext().getAuthentication().getName(), path.resolve(file).toString());
+        List<FileEntity> files = new ArrayList<>(); //fileRepository.findByUser_UsernameAndOriginalName(SecurityContextHolder.getContext().getAuthentication().getName(), path.resolve(file).toString());
         for (FileEntity fe : files) {
             deleteById(fe.getId());
         }
 
         //Optional<UserEntity> ue = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         //if (ue.isPresent()) {
-            Path uploadPath = Paths.get("/");//Paths.get(appRootFolder.toString(), ue.get().getDetails().getId().toString(), path.toString());
-            try (Stream<Path> paths = Files.list(uploadPath)) {
-                if (paths.findAny().isEmpty()) {
-                    Files.deleteIfExists(uploadPath);
-                }
-            } catch (IOException e) {
-                throw new BusinessException(e.toString());
+        Path uploadPath = Paths.get("/");//Paths.get(appRootFolder.toString(), ue.get().getDetails().getId().toString(), path.toString());
+        try (Stream<Path> paths = Files.list(uploadPath)) {
+            if (paths.findAny().isEmpty()) {
+                Files.deleteIfExists(uploadPath);
             }
+        } catch (IOException e) {
+            throw new BusinessException(e.toString());
+        }
         //}
     }
 
@@ -144,5 +143,17 @@ public class FilesService {
                 throw new BusinessException(e.toString());
             }
         }
+    }
+
+    private String getClaim(String claim) {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getClaimAsString(claim);
+        }
+
+        return null;
     }
 }

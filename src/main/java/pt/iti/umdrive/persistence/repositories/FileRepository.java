@@ -9,7 +9,10 @@ import java.util.UUID;
 
 @Repository
 public interface FileRepository extends JpaRepository<FileEntity, UUID> {
-    List<FileEntity> findByUser_UsernameIgnoreCaseOrderByVersionAsc(String username);
 
-    List<FileEntity> findByUser_UsernameAndOriginalName(String username, String originalName);
+    List<FileEntity> findByUserId(UUID userId);
+
+    //List<FileEntity> findByUser_UsernameIgnoreCaseOrderByVersionAsc(String username);
+
+    //List<FileEntity> findByUser_UsernameAndOriginalName(String username, String originalName);
 }
