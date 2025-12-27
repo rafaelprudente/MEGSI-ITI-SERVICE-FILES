@@ -1,9 +1,12 @@
-FROM bellsoft/liberica-openjre-debian:21
+FROM bellsoft/liberica-runtime-container:jre-21-musl AS builder
 
 WORKDIR /opt
-ENV LOG_LEVEL=INFO
 
-EXPOSE 8080
+ENV SERVER_PORT=8081
+ENV ROOT_LOG_LEVEL=INFO
+ENV APP_LOG_LEVEL=DEBUG
+
+EXPOSE 8081
 
 COPY target/*.jar /opt/app.jar
 
