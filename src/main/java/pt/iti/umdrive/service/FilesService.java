@@ -48,8 +48,13 @@ public class FilesService {
                 .stream()
                 .map(f -> FileModel.builder()
                         .id(f.getId())
+                        .userId(f.getUserId())
                         .originalName(f.getOriginalName())
+                        .storedName(f.getStoredName())
+                        .mimeType(f.getMimeType())
+                        .size(f.getSize())
                         .version(f.getVersion())
+                        .createAt(f.getCreateAt())
                         .build())
                 .toList();
     }
