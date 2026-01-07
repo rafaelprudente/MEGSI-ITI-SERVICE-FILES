@@ -93,7 +93,15 @@ public class FilesService {
                     .createAt(LocalDateTime.now().toInstant(ZoneOffset.UTC))
                     .build());
 
-            result = FileModel.builder().id(fe.getId()).originalName(fe.getOriginalName()).version(fe.getVersion()).build();
+            result = FileModel.builder()
+                    .id(fe.getId())
+                    .userId(fe.getUserId())
+                    .originalName(fe.getOriginalName())
+                    .storedName(fe.getStoredName())
+                    .mimeType(fe.getMimeType())
+                    .size(fe.getSize())
+                    .version(fe.getVersion())
+                    .createAt(fe.getCreateAt()).build();
         } catch (Exception e) {
             throw new BusinessException(e.toString());
         } finally {
